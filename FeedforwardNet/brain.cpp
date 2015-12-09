@@ -96,16 +96,25 @@ void brain::backward(double reward){
 		// Q-Learning
 		// Qt+1(St, At) = Qt(St, At) + learn_ratet(St, At) * (Rt + discount * maxA(Qt(St+1, A)) - Qt(St, At))
 
-		p maxact = policy(e.state1);
-		double maxA_Qt1 = maxact.value;
+		// p maxact = policy(e.state1);
+		// double maxA_Qt1 = maxact.value;
 
 		vector<double> St = stateWindow[1];
 		vector<double> St1 = stateWindow[2];
-		int A = actionWindow[1];
+		int A0 = actionWindow[1];
+		int A1 = actionWindow[2];
 
-		vector<double> tmp = St;
+		vector<double> tmp = St1;
 		vector<double> actions = {0,0,0,0};
-		actions[A] = 1;
+
+		actions[A1] = 1;
+		tmp.insert(tmp.end(), actions.begin(), actions.end());
+		vector<vector<double>> Qt1_Outputs = valueNet.fire(tmp);
+		actions[A1] = 0;
+		double QtS1A1 = Qt1_Outputs[Qt1_Outputs.size() - 1][0];
+
+		actions[A0] = 1;
+		tmp = St;
 		tmp.insert(tmp.end(), actions.begin(), actions.end());
 		vector<vector<double>> Qt_Outputs = valueNet.fire(tmp);
 		double Qt = Qt_Outputs[Qt_Outputs.size() - 1][0];
@@ -113,7 +122,7 @@ void brain::backward(double reward){
 		// for now assume learn rate is .01
 
 		double Rt = rewardWindow[1];
-		double Qt1 = Qt + (.01 * (Rt + (gamma * maxA_Qt1) - Qt));
+		double Qt1 = Qt + (.01 * (Rt + (gamma * QtS1A1) - Qt));
 
 		vector<double> target = {Qt1};
 
