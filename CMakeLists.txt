@@ -12,7 +12,7 @@ add_library(network FeedforwardNet/network.cpp FeedforwardNet/network.h)
 add_library(brain FeedforwardNet/brain.cpp FeedforwardNet/brain.h)
 
 add_executable(tester FeedforwardNet/test.cpp)
+add_executable(qlearn FeedforwardNet/qlearn.cpp)
 
 target_link_libraries(tester network layer neuron brain)
-
-
+target_link_libraries(qlearn network layer neuron brain)

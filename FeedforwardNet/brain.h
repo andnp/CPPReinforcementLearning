@@ -16,8 +16,6 @@ private:
 	vector<vector<double>> stateWindow;
 	vector<int> actionWindow;
 	vector<double> rewardWindow;
-
-	nnetwork valueNet;
 public:
 	class experience{
 	public:
@@ -31,12 +29,14 @@ public:
 	unsigned int forwardPasses = 0;
 	double epsilon = 1;
 	double age = 0;
-	double burnIn = 100000;
-	double learnSteps = 1000000;
+	double burnIn = 0;
+	double learnSteps = 10000;
 	unsigned int experienceBufferSize = 1000000;
 	unsigned int batchSize = 1;
 	double gamma = .9;
 	unsigned int startLearnSize = 100000;
+	nnetwork valueNet;
+	bool explore = true;
 
 	int randomAction();
 	p policy(vector<double> state);
@@ -44,4 +44,5 @@ public:
 	void backward(double reward);
 	void initialize(int inputSize);
 	void learn(experience e);
+	void writeToFile();
 };

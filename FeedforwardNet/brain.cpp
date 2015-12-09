@@ -1,7 +1,12 @@
 #include "brain.h"
 #include <random>
 #include <iostream>
+#include <fstream>
 #include <math.h>
+
+void brain::writeToFile(){
+	
+}
 
 int brain::randomAction(){
 	random_device rd;
@@ -11,14 +16,16 @@ int brain::randomAction(){
 }
 
 void brain::initialize(int inputSize){
-	vector<int> layers = {50, 20, 1};
+	vector<int> layers = {10, 5, 1};
 	vector<int> types = {5, 5, 1};
 	vector<double> dropout = {.01, .01, 0};
 	vector<double> lambda = {0,0,0};
-	valueNet.instantiate(inputSize, layers, types, dropout, lambda, .005);
+	valueNet.instantiate(inputSize, layers, types, dropout, lambda, .05);
 }
 
 brain::p brain::policy(vector<double> state){
+
+	// Get q-value for all actions
 	vector<double> actions = {0,0,0,0};
 	vector<vector<vector<double>>> actionValues(4);
 	for(int i = 0; i < actions.size(); i++){
@@ -29,6 +36,7 @@ brain::p brain::policy(vector<double> state){
 		actions[i] = 0;
 	}
 
+	// get Action that maximizes q-value
 	int maxLoc = 0;
 	double maxVal = actionValues[0][actionValues[0].size() - 1][0];
 	for(int i = 1; i < actionValues.size(); i++){
@@ -49,6 +57,8 @@ int brain::forward(vector<double> state){
 
 	int action;
 	epsilon = min(1.0, max(.01, 1.0 - (age - burnIn) / (learnSteps - burnIn)));
+	if(!explore)
+		epsilon = -1;
 
 	random_device rd;
 	mt19937 gen(rd());
@@ -83,11 +93,39 @@ void brain::backward(double reward){
 		e.reward0 = rewardWindow[1];
 		e.state1 = stateWindow[2];
 
+		// Q-Learning
+		// Qt+1(St, At) = Qt(St, At) + learn_ratet(St, At) * (Rt + discount * maxA(Qt(St+1, A)) - Qt(St, At))
 
-		p maxact = policy(e.state1); // this isn't right.
-		double r = e.reward0 + gamma * maxact.value;
-		vector<double> target = {r};
-		valueNet.learn(target, maxact.outputs);
+		p maxact = policy(e.state1);
+		double maxA_Qt1 = maxact.value;
+
+		vector<double> St = stateWindow[1];
+		vector<double> St1 = stateWindow[2];
+		int A = actionWindow[1];
+
+		vector<double> tmp = St;
+		vector<double> actions = {0,0,0,0};
+		actions[A] = 1;
+		tmp.insert(tmp.end(), actions.begin(), actions.end());
+		vector<vector<double>> Qt_Outputs = valueNet.fire(tmp);
+		double Qt = Qt_Outputs[Qt_Outputs.size() - 1][0];
+
+		// for now assume learn rate is .01
+
+		double Rt = rewardWindow[1];
+		double Qt1 = Qt + (.01 * (Rt + (gamma * maxA_Qt1) - Qt));
+
+		vector<double> target = {Qt1};
+
+		valueNet.learn(target, Qt_Outputs);
+		// for(int i = 0; i < target.size(); i++){
+		// 	cout << target[i] << ", ";
+		// }
+		// cout << "\n";
+		// for(int i = 0; i < maxact.outputs[maxact.outputs.size() - 1].size(); i++){
+		// 	cout << maxact.outputs[maxact.outputs.size() - 1][i] << ", ";
+		// }
+		// cout << "\n";
 
 		// if(experienceBuffer.size() < experienceBufferSize){
 		// 	experienceBuffer.push_back(e);
