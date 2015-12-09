@@ -131,10 +131,6 @@ void brain::backward(double reward){
 		// 	cout << target[i] << ", ";
 		// }
 		// cout << "\n";
-		// for(int i = 0; i < maxact.outputs[maxact.outputs.size() - 1].size(); i++){
-		// 	cout << maxact.outputs[maxact.outputs.size() - 1][i] << ", ";
-		// }
-		// cout << "\n";
 
 		// if(experienceBuffer.size() < experienceBufferSize){
 		// 	experienceBuffer.push_back(e);
