@@ -123,7 +123,11 @@ void brain::backward(double reward){
 		// for now assume learn rate is .01
 
 		double Rt = rewardWindow[1];
-		double Qt1 = Qt + (.01 * (Rt + (gamma * QtS1A1) - Qt));
+		double del = (Rt + (gamma * QtS1A1) - Qt);
+		double E0 = gamma * lambda * Etm1;
+		double Qt1 = Qt + (.01 * del * (E0 + 1));
+
+		Etm1 = E0;
 
 		vector<double> target = {Qt1};
 

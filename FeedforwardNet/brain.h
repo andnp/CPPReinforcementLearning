@@ -16,6 +16,7 @@ private:
 	vector<vector<double>> stateWindow;
 	vector<int> actionWindow;
 	vector<double> rewardWindow;
+	double Etm1 = 0;
 public:
 	class experience{
 	public:
@@ -28,6 +29,7 @@ public:
 	vector<experience> experienceBuffer;
 	unsigned int forwardPasses = 0;
 	double epsilon = 1;
+	double lambda = .9;
 	double age = 0;
 	double burnIn = 0;
 	double learnSteps = 10000;
