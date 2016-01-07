@@ -29,7 +29,7 @@ public:
 	vector<experience> experienceBuffer;
 	unsigned int forwardPasses = 0;
 	double epsilon = 1;
-	double lambda = .9;
+	double lambda = 0;
 	double age = 0;
 	double burnIn = 0;
 	double learnSteps = 10000;
@@ -39,12 +39,15 @@ public:
 	unsigned int startLearnSize = 100000;
 	nnetwork valueNet;
 	bool explore = true;
+	int numActions = 4;
 
+	void learning(bool learning);
 	int randomAction();
 	p policy(vector<double> state);
 	int forward(vector<double> state);
 	void backward(double reward);
 	void initialize(int inputSize);
 	void learn(experience e);
+	void resetEpisode();
 	void writeToFile();
 };

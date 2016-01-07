@@ -11,23 +11,23 @@ void brain::writeToFile(){
 int brain::randomAction(){
 	random_device rd;
 	mt19937 gen(rd());
-	uniform_int_distribution<> mdist(0,3);
+	uniform_int_distribution<> mdist(0,numActions - 1);
 	return mdist(gen);
 }
 
 void brain::initialize(int inputSize){
-	vector<int> layers = {10, 5, 1};
-	vector<int> types = {5, 5, 1};
-	vector<double> dropout = {.01, .01, 0};
-	vector<double> lambda = {0,0,0};
+	vector<int> layers = {10, 1};
+	vector<int> types = {5, 1};
+	vector<double> dropout = {.01, 0};
+	vector<double> lambda = {0,0};
 	valueNet.instantiate(inputSize, layers, types, dropout, lambda, .05);
 }
 
 brain::p brain::policy(vector<double> state){
 
 	// Get q-value for all actions
-	vector<double> actions = {0,0,0,0};
-	vector<vector<vector<double>>> actionValues(4);
+	vector<double> actions(numActions, 0);
+	vector<vector<vector<double>>> actionValues(numActions);
 	for(int i = 0; i < actions.size(); i++){
 		actions[i] = 1;
 		vector<double> tmp = state;
@@ -56,7 +56,7 @@ int brain::forward(vector<double> state){
 	forwardPasses++;
 
 	int action;
-	epsilon = min(1.0, max(.01, 1.0 - (age - burnIn) / (learnSteps - burnIn)));
+	epsilon = min(1.0, max(.01, 1.0 - (forwardPasses - burnIn) / (learnSteps - burnIn)));
 	if(!explore)
 		epsilon = -1;
 
@@ -70,7 +70,7 @@ int brain::forward(vector<double> state){
 		action = maxact.action;
 	}
 
-	if(stateWindow.size() > 2){
+	if(stateWindow.size() > 1){
 		stateWindow.erase(stateWindow.begin());
 		actionWindow.erase(actionWindow.begin());
 		rewardWindow.erase(rewardWindow.begin());
@@ -81,18 +81,27 @@ int brain::forward(vector<double> state){
 	return action;
 }
 
+void brain::resetEpisode(){
+	Etm1 = 0;
+	// age = 0;
+}
+
+void brain::learning(bool learning){
+	valueNet.learning(learning);
+}
+
 void brain::backward(double reward){
 	rewardWindow.push_back(reward);
 
 	age++;
 
-	if(age > 2){
+	if(age > 1){
 		experience e;
-		e.state0 = stateWindow[1];
-		e.action0 = actionWindow[1];
-		e.reward0 = rewardWindow[1];
-		e.state1 = stateWindow[2];
-		e.action1 = actionWindow[2];
+		e.state0 = stateWindow[0];
+		e.action0 = actionWindow[0];
+		e.reward0 = rewardWindow[0];
+		e.state1 = stateWindow[1];
+		e.action1 = actionWindow[1];
 
 		// Q-Learning
 		// Qt+1(St, At) = Qt(St, At) + learn_ratet(St, At) * (Rt + discount * maxA(Qt(St+1, A)) - Qt(St, At))
@@ -100,13 +109,13 @@ void brain::backward(double reward){
 		// p maxact = policy(e.state1);
 		// double maxA_Qt1 = maxact.value;
 
-		vector<double> St = stateWindow[1];
-		vector<double> St1 = stateWindow[2];
-		int A0 = actionWindow[1];
-		int A1 = actionWindow[2];
+		vector<double> St = stateWindow[0];
+		vector<double> St1 = stateWindow[1];
+		int A0 = actionWindow[0];
+		int A1 = actionWindow[1];
 
 		vector<double> tmp = St1;
-		vector<double> actions = {0,0,0,0};
+		vector<double> actions(numActions, 0);
 
 		actions[A1] = 1;
 		tmp.insert(tmp.end(), actions.begin(), actions.end());
@@ -170,7 +179,7 @@ void brain::learn(experience e){
 	int A1 = e.action1;
 
 	vector<double> tmp = St1;
-	vector<double> actions = {0,0,0,0};
+	vector<double> actions(numActions, 0);
 
 	actions[A1] = 1;
 	tmp.insert(tmp.end(), actions.begin(), actions.end());

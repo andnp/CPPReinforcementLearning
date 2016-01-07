@@ -4,7 +4,7 @@
 #include <vector>
 using namespace std;
 
-#define SIZE 25
+#define SIZE 5
 
 vector<int> takeAction(int action, int x, int y){
 	if(action == 0){
@@ -23,6 +23,34 @@ vector<int> takeAction(int action, int x, int y){
 		y++;
 		if(y >= SIZE)
 			y--;
+	} else if(action == 4){
+		y++;
+		x++;
+		if(y >= SIZE)
+			y--;
+		if(x >= SIZE)
+			x--;
+	} else if(action == 5){
+		y--;
+		x++;
+		if(y < 0)
+			y = 0;
+		if(x >= SIZE)
+			x--;
+	} else if(action == 6){
+		y--;
+		x--;
+		if(x < 0)
+			x = 0;
+		if(y < 0)
+			y = 0;
+	} else if(action == 7){
+		y++;
+		x--;
+		if(y >= SIZE)
+			y--;
+		if(x < 0)
+			x = 0;
 	}
 	vector<int> temp = {x, y};
 	return temp;
@@ -48,8 +76,9 @@ vector<double> getGrid(vector<vector<int>> grid){
 	return tmp;
 }
 
-vector<vector<int>> initGrid(){
+vector<vector<int>> initGrid(int x, int y){
 	vector<vector<int>> grid(SIZE, vector<int>(SIZE, 0));
+	grid[y][x] = 1;
 	return grid;
 }
 
@@ -64,22 +93,29 @@ void print(vector<vector<int>> grid){
 
 
 int main(){
-	vector<vector<int>> grid = initGrid();
+	vector<vector<int>> grid;
 	int winX = SIZE - 1;
 	int winY = SIZE - 1;
 
-	int startX = 0;
-	int startY = 0;
+	random_device rd;
+	mt19937 gen(rd());
+	uniform_int_distribution<> dist(0,SIZE - 2);
 
-	int x = startX, y = startY;
+	int startX;
+	int startY;
+
+	int x, y;
 
 	brain b;
-	vector<int> layers = {8, 1};
-	vector<int> types = {5, 1};
-	vector<double> dropout = {.01, 0};
-	vector<double> lambda = {0, 0};
-	b.valueNet.instantiate((SIZE * SIZE) + 4, layers, types, dropout, lambda, .01);
-	b.learnSteps = SIZE * SIZE  * 1000;
+	b.numActions = 8;
+	vector<int> layers = {22, 8, 1};
+	vector<int> types = {5, 5, 1};
+	vector<double> dropout = {.01, .02, 0};
+	vector<double> lambda = {0, 0, 0};
+	b.valueNet.instantiate((SIZE * SIZE) + 8, layers, types, dropout, lambda, .01);
+	b.learnSteps = pow(1.35, SIZE) * SIZE  * 25000;
+	b.lambda = 0;
+	int afterLearn = 1000;
 
 	vector<double> inputs;
 
@@ -91,13 +127,15 @@ int main(){
 	double avg = -100;
 
 	uint games = 0;
-	int ignore =  SIZE * SIZE * 10;
+	int ignore =  SIZE * SIZE * 100;
 
-	while(avg < -1){
+	bool end = false;
+
+	while(avg < 3 || rewards.size() < 100){
 		totalReward = 0;
-		x = startX;
-		y = startY;
-		grid = initGrid();
+		x = dist(gen);
+		y = dist(gen);
+		grid = initGrid(x, y);
 		while(!won(x, y, winX, winY)){
 			inputs = getGrid(grid);
 			int action = b.forward(inputs);
@@ -108,18 +146,17 @@ int main(){
 				reward = -2;
 			x = coords[0];
 			y = coords[1];
+			// if(x == SIZE - 3 && y != 1)
+			// 	reward = -10;
+			// if(x == SIZE/2 && y == SIZE/2){
+			// 	reward = 0 - (SIZE * SIZE);
+			// 	end = true;
+			// }
 			if(won(x, y, winX, winY))
-				if(SIZE % 2 == 1)
-					reward = SIZE * 2;
-				else
-					reward = (SIZE * 2) + 1;
+				reward = 2 * SIZE;
 			b.backward(reward);
 			totalReward += reward;
-			// cout << "location: " << x << ", " << y << " action: " << action << "\n";
-			// print(grid);
-			// if(c == 10000)
-			// 	break;
-			c++;
+			if(end) break;
 		}
 		if(games >= ignore){
 			rewards.push_back(totalReward);
@@ -131,8 +168,15 @@ int main(){
 			avg = (double)sum / (double)rewards.size();
 		}
 		games++;
-		if(games > 2000)
-			b.explore = false;
+		b.resetEpisode();
+		end = false;
+		if(b.epsilon == .01){
+			afterLearn--;
+			if(afterLearn <= 0){
+				// b.explore = false;
+				b.learning(false);
+			}
+		}
 		cout << "totalReward " << totalReward << " avg: " << avg << " games: " << games << " epsilon: " << b.epsilon << "\n";
 	}
 

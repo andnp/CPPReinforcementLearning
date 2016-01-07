@@ -46,6 +46,12 @@ void nnetwork::instantiate(int input_size, vector<int> _layer_sizes, vector<int>
 	// }
 }
 
+void nnetwork::learning(bool learning){
+	for(int i = 0; i < layers.size(); i++){
+		layers[i].learning(learning);
+	}
+}
+
 vector<vector<double>> nnetwork::transpose(vector<vector<double>> matrix){
 	vector<vector<double>> ret;
 	for(int i = 0; i < matrix[0].size(); i++){

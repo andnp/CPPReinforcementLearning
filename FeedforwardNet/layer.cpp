@@ -26,6 +26,12 @@ vector<vector<double>> layer::backprop(vector<vector<double>> input_errors, vect
 	return errors;
 }
 
+void layer::learning(bool learning){
+	for(int i = 0; i < neurons.size(); i++){
+		neurons[i].learning = learning;
+	}
+}
+
 void layer::instantiate(int _size, int _input_size, int _type, double dropout, double c, double lambda){
 	type = _type;
 	size = _size;

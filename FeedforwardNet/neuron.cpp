@@ -161,7 +161,7 @@ double neuron::compute(vector<double> inputs){
 	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     default_random_engine gen(seed);
     uniform_real_distribution<double> dist(0,1);
-    if(dist(gen) < dropout){
+    if(dist(gen) < dropout && learning){
     	return 0;
     } else if(type == SIGMOID)
 		return sigmoidFunction(previous_z);

@@ -36,6 +36,8 @@ private:
 	double maxout(double z, double z2);
 	double maxoutPrime(double z, double z2, int set);
 public:
+	bool learning = true;
+	
 	vector<double> backpropOutput(double y, vector<double> prev_act);
 	vector<double> backprop(vector<double> y, vector<double> prev_act);
 	double compute(vector<double> inputs);
