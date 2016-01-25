@@ -28,6 +28,12 @@ void nnetwork::learn(vector<double> target, vector<vector<double>> prev_outputs)
 	// }
 }
 
+void nnetwork::learn(vector<double> target, vector<double> inputs){
+	vector<vector<double>> o;
+	o = fire(inputs);
+	learn(target, o);
+}
+
 void nnetwork::instantiate(int input_size, vector<int> _layer_sizes, vector<int> _types, vector<double> dropout,vector<double> lambda, double c){
 	layer_sizes = _layer_sizes;
 	layer_types = _types;

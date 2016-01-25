@@ -7,10 +7,10 @@ int main(){
 	nnetwork n;
 
 	int inputSize = 2;
-	vector<int> layers = {3, 3, 1};
-	vector<int> types = {5, 5, 1};
-	vector<double> dropout = {.01, 0.01, 0};
-	vector<double> lambda = {0,0,0};
+	vector<int> layers = {3, 1};
+	vector<int> types = {5, 1};
+	vector<double> dropout = {0.01, 0};
+	vector<double> lambda = {0,0};
 	n.instantiate(inputSize, layers, types, dropout, lambda, .001);
 
 	vector<double> output(1);
