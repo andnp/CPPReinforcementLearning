@@ -76,8 +76,8 @@ int main(){
 		for(int i = 50000; i < 60000; i++){
 			int target = (int)data[i][0];
 			data[i].erase(data[i].begin());
-			vector<vector<double>> o = n.fire(data[i]);
-			int got = getHighest(o[o.size() - 1]);
+			vector<double> o = n.fire(data[i]);
+			int got = getHighest(o);
 			// printf("got: %i wanted: %i\n", got, target);
 			if(got == target)
 				correct++;

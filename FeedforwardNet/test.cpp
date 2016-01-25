@@ -7,16 +7,15 @@ int main(){
 	nnetwork n;
 
 	int inputSize = 2;
-	vector<int> layers = {3, 1};
-	vector<int> types = {5, 1};
-	vector<double> dropout = {0.01, 0};
+	vector<int> layers = {2, 1};
+	vector<int> types = {3, 1};
+	vector<double> dropout = {0.0, 0};
 	vector<double> lambda = {0,0};
-	n.instantiate(inputSize, layers, types, dropout, lambda, .001);
+	n.instantiate(inputSize, layers, types, dropout, lambda, .1);
 
 	vector<double> output(1);
 	vector<double> inputs;
 	vector<double> target;
-	vector<vector<double>> o;
 
 	vector<int> counter = {0,0,0,0};
 
@@ -32,8 +31,7 @@ int main(){
 	while(err > .00001 && i < 5000){
 	// for(int j = 0; j < 1000; j++){
 		inputs = {(double)dist(gen), (double)dist(gen)};
-		o = n.fire(inputs);
-		output = o[o.size() - 1];
+		output = n.fire(inputs);
 		if(inputs[0]==1 ^ inputs[1]==1){
 			target = {1.0};
 		} else {
@@ -47,13 +45,12 @@ int main(){
 		// for(auto i : output){
 		// 	cout << "in: " << inputs[0] << " " << inputs[1] << " got: " << i << " expected: " << target[0] << "\n";
 		// }
-		n.learn(target, o);
+		n.learn(target);
 		i++;
 		err = 0;
 
 		inputs = {0,0};
-		o = n.fire(inputs);
-		output = o[o.size() - 1];
+		output = n.fire(inputs);
 		if(inputs[0]==1 ^ inputs[1]==1){
 			target = {1};
 		} else {
@@ -61,8 +58,7 @@ int main(){
 		}
 		err += pow((target[0] - output[0]), 2);
 		inputs = {1,0};
-		o = n.fire(inputs);
-		output = o[o.size() - 1];
+		output = n.fire(inputs);
 		if(inputs[0]==1 ^ inputs[1]==1){
 			target = {1};
 		} else {
@@ -70,8 +66,7 @@ int main(){
 		}
 		err += pow((target[0] - output[0]), 2);
 		inputs = {0,1};
-		o = n.fire(inputs);
-		output = o[o.size() - 1];
+		output = n.fire(inputs);
 		if(inputs[0]==1 ^ inputs[1]==1){
 			target = {1};
 		} else {
@@ -79,8 +74,7 @@ int main(){
 		}
 		err += pow((target[0] - output[0]), 2);
 		inputs = {1,1};
-		o = n.fire(inputs);
-		output = o[o.size() - 1];
+		output = n.fire(inputs);
 		if(inputs[0]==1 ^ inputs[1]==1){
 			target = {1};
 		} else {
@@ -98,8 +92,7 @@ int main(){
 	cout << "--------EVALUATION----------\n";
 
 	inputs = {0,0};
-	o = n.fire(inputs);
-	output = o[o.size() - 1];
+	output = n.fire(inputs);
 	if(inputs[0]==1 ^ inputs[1]==1){
 		target = {1};
 	} else {
@@ -109,8 +102,7 @@ int main(){
 		cout << "in: " << inputs[0] << " " << inputs[1] << " got: " << i << " expected: " << target[0] << "\n";
 	}
 	inputs = {1,0};
-	o = n.fire(inputs);
-	output = o[o.size() - 1];
+	output = n.fire(inputs);
 	if(inputs[0]==1 ^ inputs[1]==1){
 		target = {1};
 	} else {
@@ -120,8 +112,7 @@ int main(){
 		cout << "in: " << inputs[0] << " " << inputs[1] << " got: " << i << " expected: " << target[0] << "\n";
 	}
 	inputs = {0,1};
-	o = n.fire(inputs);
-	output = o[o.size() - 1];
+	output = n.fire(inputs);
 	if(inputs[0]==1 ^ inputs[1]==1){
 		target = {1};
 	} else {
@@ -131,8 +122,7 @@ int main(){
 		cout << "in: " << inputs[0] << " " << inputs[1] << " got: " << i << " expected: " << target[0] << "\n";
 	}
 	inputs = {1,1};
-	o = n.fire(inputs);
-	output = o[o.size() - 1];
+	output = n.fire(inputs);
 	if(inputs[0]==1 ^ inputs[1]==1){
 		target = {1};
 	} else {

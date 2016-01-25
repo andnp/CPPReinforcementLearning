@@ -2,22 +2,21 @@
 #include <iostream>
 using namespace std;
 
-vector<vector<double>> nnetwork::fire(vector<double> inputs){
+vector<double> nnetwork::fire(vector<double> inputs){
 	vector<vector<double>> outputs(layers.size() + 1);
 	outputs[0] = inputs;
 	outputs[1] = layers[0].compute(inputs);
 	for(int i = 1; i < layers.size(); i++){
 		outputs[i + 1] = layers[i].compute(outputs[i]);
 	}
-	return outputs;
+	return outputs[outputs.size() - 1];
 }
 
-void nnetwork::learn(vector<double> target, vector<vector<double>> prev_outputs){
+void nnetwork::learn(vector<double> target){
 	vector<vector<vector<double>>> errors;
-	errors.push_back(layers[layers.size() - 1].backpropOutput(target, prev_outputs[prev_outputs.size() - 2]));
-	int length = prev_outputs.size() - 2;
-	for(int i = length - 1; i >= 0; i--){
-		errors.push_back(layers[i].backprop(transpose(errors[errors.size() - 1]), prev_outputs[i]));
+	errors.push_back(layers[layers.size() - 1].backpropOutput(target));
+	for(int i = layers.size() - 2; i >= 0; i--){
+		errors.push_back(layers[i].backprop(transpose(errors[errors.size() - 1])));
 	}
 	// cout << "Prev_outputs\n";
 	// for(int i = 0; i < prev_outputs.size(); i++){
@@ -28,10 +27,8 @@ void nnetwork::learn(vector<double> target, vector<vector<double>> prev_outputs)
 	// }
 }
 
-void nnetwork::learn(vector<double> target, vector<double> inputs){
-	vector<vector<double>> o;
-	o = fire(inputs);
-	learn(target, o);
+void nnetwork::learn(vector<double> target, vector<double> inputs){fire(inputs);
+	learn(target);
 }
 
 void nnetwork::instantiate(int input_size, vector<int> _layer_sizes, vector<int> _types, vector<double> dropout,vector<double> lambda, double c){

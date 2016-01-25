@@ -10,18 +10,18 @@ vector<double> layer::compute(vector<double> inputs){
 	return outputs;
 }
 
-vector<vector<double>> layer::backpropOutput(vector<double> y, vector<double> prev_act){
+vector<vector<double>> layer::backpropOutput(vector<double> y){
 	vector<vector<double>> errors(size);
 	for(int i = 0; i < size; i++){
-		errors[i] = neurons[i].backpropOutput(y[i], prev_act);
+		errors[i] = neurons[i].backpropOutput(y[i]);
 	}
 	return errors;
 }
 
-vector<vector<double>> layer::backprop(vector<vector<double>> input_errors, vector<double> prev_act){
+vector<vector<double>> layer::backprop(vector<vector<double>> input_errors){
 	vector<vector<double>> errors(size);
 	for(int i = 0; i < size; i++){
-		errors[i] = neurons[i].backprop(input_errors[i], prev_act);
+		errors[i] = neurons[i].backprop(input_errors[i]);
 	}
 	return errors;
 }

@@ -94,7 +94,7 @@ double neuron::deltaOutput(double y, double previous_z){
 		return 0.0;
 	}
 }
-vector<double> neuron::backpropOutput(double y, vector<double> prev_act){
+vector<double> neuron::backpropOutput(double y){
 	double db = deltaOutput(y, previous_z);
 	vector<double> errors(weights.size());
 	// cout << "Backprop Output" << "\n";
@@ -102,7 +102,7 @@ vector<double> neuron::backpropOutput(double y, vector<double> prev_act){
 		errors[i] = db * weights[i];
 		// cout << "prev_act " << prev_act[i] << "\n";
 		//			      cost					   momentum				    weight decay
-		double dw = (c * db * prev_act[i]) + (momentum * prevDW[i]) - (lambda * c * weights[i]);
+		double dw = (c * db * prevInputs[i]) + (momentum * prevDW[i]) - (lambda * c * weights[i]);
 		prevDW[i] = dw;
 		// cout << "prev " << weights[i] << "\n";
 		weights[i] = weights[i] - dw;
@@ -115,7 +115,7 @@ vector<double> neuron::backpropOutput(double y, vector<double> prev_act){
 	// cout << "now_bias " << bias << "\n";
 	return errors;
 }
-vector<double> neuron::backprop(vector<double> y, vector<double> prev_act){
+vector<double> neuron::backprop(vector<double> y){
 	if(previous_z > previous_z2 || type != MAXOUT){
 		double db = delta(vectorSum(y), previous_z, 0);
 		vector<double> errors(weights.size());
@@ -123,7 +123,7 @@ vector<double> neuron::backprop(vector<double> y, vector<double> prev_act){
 		// cout << "Backprop" << "\n";
 		for(int i = 0; i < weights.size(); i++){
 			errors[i] = db * weights[i];
-			double dw = (c * db  * prev_act[i]) + (momentum * prevDW[i]) - (lambda * c * weights[i]);
+			double dw = (c * db  * prevInputs[i]) + (momentum * prevDW[i]) - (lambda * c * weights[i]);
 			prevDW[i] = dw;
 			// cout << "prev " << weights[i] << "\n";
 			weights[i] = weights[i] - dw;
@@ -142,7 +142,7 @@ vector<double> neuron::backprop(vector<double> y, vector<double> prev_act){
 		// cout << "Backprop" << "\n";
 		for(int i = 0; i < weights2.size(); i++){
 			errors[i] = db * weights2[i];
-			double dw = (c * db  * prev_act[i]) + (momentum * prevDW2[i]) - (lambda * c * weights2[i]);
+			double dw = (c * db  * prevInputs[i]) + (momentum * prevDW2[i]) - (lambda * c * weights2[i]);
 			prevDW2[i] = dw;
 			// cout << "prev " << weights[i] << "\n";
 			weights2[i] = weights2[i] - dw;
@@ -156,6 +156,7 @@ vector<double> neuron::backprop(vector<double> y, vector<double> prev_act){
 	
 }
 double neuron::compute(vector<double> inputs){
+	prevInputs = inputs;
 	previous_z = dot(weights, inputs) + bias;
 	if(type == MAXOUT) previous_z2 = dot(weights2, inputs) + bias2;
 	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();

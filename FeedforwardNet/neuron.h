@@ -5,6 +5,7 @@ class neuron{
 private:
 	vector<double> weights;
 	vector<double> weights2;
+	vector<double> prevInputs;
 	double bias;
 	double bias2 = 0;
 	double previous_z;
@@ -15,7 +16,7 @@ private:
 	vector<double> prevDW2;
 	double prevDB;
 	double prevDB2;
-	double momentum = 0.9;
+	double momentum = 0.0;
 	double lambda = 0.0;
 	double dropout;
 
@@ -38,8 +39,8 @@ private:
 public:
 	bool learning = true;
 	
-	vector<double> backpropOutput(double y, vector<double> prev_act);
-	vector<double> backprop(vector<double> y, vector<double> prev_act);
+	vector<double> backpropOutput(double y);
+	vector<double> backprop(vector<double> y);
 	double compute(vector<double> inputs);
 	void instantiate(int num, int type, double dropout, double c, double lambda);
 	int LINEAR = 1;
