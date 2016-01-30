@@ -9,10 +9,12 @@ int getHighest(vector<double> vect){
 	int max = -9999999;
 	int maxLoc = -1;
 	for(int i = 0; i < vect.size(); i++){
-		if(vect[i] > max){
-			max = vect[i];
+		double val = vect[i];
+		if(val > max){
+			max = val;
 			maxLoc = i;
 		}
+		// printf("%f\n", val);
 	}
 	return maxLoc;
 }
@@ -48,34 +50,47 @@ int main(){
 	vector<int> types = {0, 0};
 	vector<double> dropout = {0, 0};
 	vector<double> lambda = {0,0};
-	n.instantiate(inputSize, layers, types, dropout, lambda, .01);
+	n.instantiate(inputSize, layers, types, dropout, lambda, .50);
+
+	vector<double> targets(60000);
 
 	printf("------------Reading File----------\n");
 	vector<vector<double>> data = readFile();
+
+	for(int i = 0; i < 60000; i++){
+		targets[i] = (int)data[i][0];
+		data[i].erase(data[i].begin());
+	}
+
 	printf("------------Training -------------\n");
 	printf("%i\n", data.size()); 
 	for(int k = 0; k < epochs; k++){
 		for(int i = 0; i < 50000; i++){
-			int target = (int)data[i][0];
-			data[i].erase(data[i].begin());
+			int target = targets[i];
 			vector<double> targetVector = {0,0,0,0,0,0,0,0,0,0};
+			// printf("----------------------\n");
+			// printf("Target: %d\n", target);
 			targetVector[target] = 1;
+			// vector<double> first = n.fire(data[i]);
 			n.learn(targetVector, data[i]);
-			// vector<vector<double>> o = n.fire(data[i]);
-			// vector<double> outs = o[o.size() - 1];
-			// for(int j = 0; j < outs.size(); j++){
-			// 	printf("%f\n", outs[j]);
+			// vector<double> o = n.fire(data[i]);
+			// for(int j = 0; j < first.size(); j++){
+			// 	printf("%f ", first[j]);
 			// }
-			if(i % 5000 == 0)
-				printf(".");
+			// printf("\n");
+			// for(int j = 0; j < o.size(); j++){
+			// 	printf("%f ", o[j]);
+			// }
+			// printf("\n");
+			// if(i % 5000 == 0)
+			// 	printf(".");
 		}
 		printf("\n");
 
 		int correct = 0;
 		printf("------------Testing-------------\n");
 		for(int i = 50000; i < 60000; i++){
-			int target = (int)data[i][0];
-			data[i].erase(data[i].begin());
+			int target = targets[i];
 			vector<double> o = n.fire(data[i]);
 			int got = getHighest(o);
 			// printf("got: %i wanted: %i\n", got, target);
