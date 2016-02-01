@@ -8,10 +8,10 @@ int main(){
 
 	int inputSize = 2;
 	vector<int> layers = {2, 1};
-	vector<int> types = {3, 1};
+	vector<int> types = {2, 0};
 	vector<double> dropout = {0.0, 0};
 	vector<double> lambda = {0,0};
-	n.instantiate(inputSize, layers, types, dropout, lambda, .1);
+	n.instantiate(inputSize, layers, types, dropout, lambda, .5);
 
 	vector<double> output(1);
 	vector<double> inputs;
@@ -28,7 +28,7 @@ int main(){
 	double err = 10;
 	double err_last = 100;
 	int i = 0;
-	while(err > .00001 && i < 5000){
+	while(err > .00001 && i < 10000){
 	// for(int j = 0; j < 1000; j++){
 		inputs = {(double)dist(gen), (double)dist(gen)};
 		output = n.fire(inputs);

@@ -6,7 +6,7 @@
 using namespace std;
 
 int getHighest(vector<double> vect){
-	int max = -9999999;
+	double max = -9999999;
 	int maxLoc = -1;
 	for(int i = 0; i < vect.size(); i++){
 		double val = vect[i];
@@ -50,7 +50,7 @@ int main(){
 	vector<int> types = {0, 0};
 	vector<double> dropout = {0, 0};
 	vector<double> lambda = {0,0};
-	n.instantiate(inputSize, layers, types, dropout, lambda, .50);
+	n.instantiate(inputSize, layers, types, dropout, lambda, .10);
 
 	vector<double> targets(60000);
 
@@ -58,30 +58,37 @@ int main(){
 	vector<vector<double>> data = readFile();
 
 	for(int i = 0; i < 60000; i++){
-		targets[i] = (int)data[i][0];
+		targets[i] = data[i][0];
 		data[i].erase(data[i].begin());
 	}
 
+	// printf("%f\n", targets[1]);
+	// for(int i = 0; i < data[1].size(); i++){
+	// 	printf("%f ", data[1][i]);
+	// }
+	// printf("\n");
+
 	printf("------------Training -------------\n");
-	printf("%i\n", data.size()); 
+	printf("%i\n", data[0].size()); 
 	for(int k = 0; k < epochs; k++){
-		for(int i = 0; i < 50000; i++){
-			int target = targets[i];
+		for(int i = 0; i < 1000; i++){
+			double target = targets[i];
 			vector<double> targetVector = {0,0,0,0,0,0,0,0,0,0};
-			// printf("----------------------\n");
-			// printf("Target: %d\n", target);
+			printf("----------------------\n");
+			printf("Target: %f\n", target);
+			vector<double> input = data[i];
 			targetVector[target] = 1;
-			// vector<double> first = n.fire(data[i]);
-			n.learn(targetVector, data[i]);
-			// vector<double> o = n.fire(data[i]);
-			// for(int j = 0; j < first.size(); j++){
-			// 	printf("%f ", first[j]);
-			// }
-			// printf("\n");
-			// for(int j = 0; j < o.size(); j++){
-			// 	printf("%f ", o[j]);
-			// }
-			// printf("\n");
+			vector<double> first = n.fire(input);
+			n.learn(targetVector, input);
+			vector<double> o = n.fire(input);
+			for(int j = 0; j < first.size(); j++){
+				printf("%f ", first[j]);
+			}
+			printf("\n");
+			for(int j = 0; j < o.size(); j++){
+				printf("%f ", o[j]);
+			}
+			printf("\n");
 			// if(i % 5000 == 0)
 			// 	printf(".");
 		}
@@ -89,11 +96,15 @@ int main(){
 
 		int correct = 0;
 		printf("------------Testing-------------\n");
-		for(int i = 50000; i < 60000; i++){
+		for(int i = 50000; i < 50100; i++){
 			int target = targets[i];
 			vector<double> o = n.fire(data[i]);
 			int got = getHighest(o);
-			// printf("got: %i wanted: %i\n", got, target);
+			printf("got: %i wanted: %i\n", got, target);
+			for(int j = 0; j < o.size(); j++){
+				printf("%f ", o[j]);
+			}
+			printf("\n");
 			if(got == target)
 				correct++;
 		}

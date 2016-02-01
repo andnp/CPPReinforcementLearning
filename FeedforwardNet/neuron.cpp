@@ -78,9 +78,10 @@ double neuron::delta(double errors, double previous_z, int set){
 		return 0.0;
 	}
 }
+// temp: sigmoid uses cross-entropy loss, where all others use squared error (this will be fixed in a later update);
 double neuron::deltaOutput(double y, double previous_z){
 	if(type == SIGMOID)
-		return (sigmoidFunction(previous_z) - y) * sigmaPrime(previous_z);
+		return sigmoidFunction(previous_z) - y;
 	else if(type == LINEAR)
 		return (previous_z - y) * linearPrime(previous_z);
 	else if(type == TANH)
